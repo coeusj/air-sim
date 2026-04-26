@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package sim;
+option go_package = "github.com/coeusj/air-sim/gen/sim";
+
+message Aircraft {
+  string id = 1;
+  double lat = 2;
+  double lon = 3;
+  double alt = 4;
+  double speed = 5;
+  double heading = 6;
+  double track = 7;
+}
+
+message AircraftListResponse {
+  repeated Aircraft aircrafts = 1;
+}
+
+message AircraftListRequest {}
+
+service AircraftManager {
+  rpc StreamAircraftList(AircraftListRequest) returns (stream AircraftListResponse);
+}
