@@ -5,12 +5,12 @@ option go_package = "github.com/coeusj/air-sim/gen/sim";
 
 message Aircraft {
   string id = 1;
-  double lat = 2;
-  double lon = 3;
-  double alt = 4;
-  double speed = 5;
-  double heading = 6;
-  double track = 7;
+  float  lat = 2;
+  float lon = 3;
+  float alt = 4;
+  float speed = 5;
+  float heading = 6;
+  float track = 7;
 }
 
 message AircraftListResponse {

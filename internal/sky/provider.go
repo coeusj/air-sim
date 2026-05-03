@@ -10,6 +10,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/coeusj/air-sim/pkg/utils"
 	_ "github.com/microsoft/go-mssqldb"
 )
 
@@ -32,8 +33,10 @@ type Route struct {
 	Id       int
 	StartLat float32
 	StartLon float32
+	StartAlt float32
 	EndLat   float32
 	EndLon   float32
+	EndAlt   float32
 }
 
 type Aircraft struct {
@@ -212,16 +215,16 @@ func (dp *DataProvider) CreateAircrafts(ctx context.Context, count int) {
 	insertQuery := ""
 	for i := 0; i < count; i++ {
 		randRouteIdx := rand.Uint32N(uint32(len(routes)))
-		routeWithCoords := routes[randRouteIdx]
+		route := routes[randRouteIdx]
 
 		aircraft := &Aircraft{
-			Lat:     float32(routeWithCoords.StartLat),
-			Lon:     float32(routeWithCoords.StartLon),
-			Alt:     1000.0,
-			Speed:   230.0,
+			Lat:     route.StartLat,
+			Lon:     route.StartLon,
+			Alt:     route.StartAlt,
+			Speed:   0,
 			Heading: 45.0,
 			Track:   36.0,
-			RouteId: routeWithCoords.Id,
+			RouteId: route.Id,
 		}
 
 		insertQuery += fmt.Sprintf("INSERT INTO Aircrafts (lat, lon, alt, speed, heading, track, creation_date, route_id) VALUES (%.3f, %.3f, %.2f, %.2f, %.3f, %.3f, @p1, %d);",
@@ -249,8 +252,10 @@ func (dp *DataProvider) GetRoutes(ctx context.Context) ([]*Route, error) {
 			r.id,
 			a.latitude_deg start_lat,
 			a.longitude_deg start_lon,
+			a.elevation_ft start_alt_ft,
 			b.latitude_deg end_lat,
-			b.longitude_deg end_lon
+			b.longitude_deg end_lon,
+			b.elevation_ft end_alt_ft
 		FROM Routes r
 		INNER JOIN Airports a ON r.start_id = a.id
 		INNER JOIN Airports b ON r.end_id = b.id;`
@@ -266,10 +271,12 @@ func (dp *DataProvider) GetRoutes(ctx context.Context) ([]*Route, error) {
 		var id int
 		var startLat float32
 		var startLon float32
+		var startAltFt float32
 		var endLat float32
 		var endLon float32
+		var endAltFt float32
 
-		if err := rows.Scan(&id, &startLat, &startLon, &endLat, &endLon); err != nil {
+		if err := rows.Scan(&id, &startLat, &startLon, &startAltFt, &endLat, &endLon, &endAltFt); err != nil {
 			log.Printf("[DataProvider] Error while scanning route: %s", err.Error())
 			continue
 		}
@@ -278,8 +285,10 @@ func (dp *DataProvider) GetRoutes(ctx context.Context) ([]*Route, error) {
 			Id:       id,
 			StartLat: startLat,
 			StartLon: startLon,
+			StartAlt: utils.FeetToMeters(startAltFt),
 			EndLat:   endLat,
 			EndLon:   endLon,
+			EndAlt:   utils.FeetToMeters(endAltFt),
 		})
 	}
 

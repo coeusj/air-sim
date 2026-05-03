@@ -23,9 +23,10 @@ func main() {
 	}
 	defer tcpServer.Close()
 
+	nSimulatedAircrafts := 2
 	dataProvider := sky.NewDataProvider()
 	defer dataProvider.Close()
-	dataProvider.CreateAircrafts(context.Background(), 10)
+	dataProvider.CreateAircrafts(context.Background(), nSimulatedAircrafts)
 
 	grpcServer := grpc.NewServer()
 	// Single Server Approach (single gRPC server - multiple services) Monolithic
