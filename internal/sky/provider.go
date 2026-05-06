@@ -7,7 +7,6 @@ import (
 	"log"
 	"math/rand/v2"
 	"net/url"
-	"os"
 	"time"
 
 	"github.com/coeusj/air-sim/pkg/utils"
@@ -50,15 +49,15 @@ type Aircraft struct {
 	RouteId int
 }
 
-func NewDataProvider() *DataProvider {
+func NewDataProvider(host string, dbName string, username string, password string) *DataProvider {
 	dbUrl := &url.URL{
 		Scheme: "sqlserver",
-		User:   url.UserPassword(os.Getenv("DB_USERNAME"), os.Getenv("Db_PASSWORD")),
-		Host:   os.Getenv("DB_HOST"),
+		User:   url.UserPassword(username, password),
+		Host:   host,
 	}
 
 	urlQueryParams := dbUrl.Query()
-	urlQueryParams.Set("database", os.Getenv("DB_NAME"))
+	urlQueryParams.Set("database", dbName)
 	urlQueryParams.Set("connection+timeout", "30")
 	dbUrl.RawQuery = urlQueryParams.Encode()
 
