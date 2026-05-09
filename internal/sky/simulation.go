@@ -61,9 +61,6 @@ func (ss *SkySimulation) Close() {
 func (ss *SkySimulation) startSimulation(ctx context.Context, stream sim.AircraftManager_StreamAircraftListServer) error {
 	log.Println("[SkySimulation] Simulation is starting")
 
-	// TODO: set size if possible
-	dataChannel := make(chan *sim.Aircraft)
-
 	aircrafts, err := ss.provider.GetAircrafts(ctx)
 	if err != nil {
 		return err
@@ -87,15 +84,14 @@ func (ss *SkySimulation) startSimulation(ctx context.Context, stream sim.Aircraf
 
 	var updateLoopwg sync.WaitGroup
 	senderWg := sync.WaitGroup{}
+	dataChannel := make(chan *sim.Aircraft)
 
 	senderWg.Add(1)
 	go ss.initStreamSender(stream, dataChannel, &senderWg)
-
 	ss.startSimulationUpdateLoop(ctx, &updateLoopwg, aircrafts, routes, dataChannel)
 
 	updateLoopwg.Wait()
 	close(dataChannel)
-
 	senderWg.Wait()
 
 	log.Println("[SkySimulation] Simulation completed")

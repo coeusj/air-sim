@@ -24,7 +24,6 @@ func main() {
 	defer tcpServer.Close()
 
 	nSimulatedAircrafts := 2
-
 	dataProvider := sky.NewDataProvider(os.Getenv("DB_HOST"), os.Getenv("DB_NAME"), os.Getenv("DB_USERNAME"), os.Getenv("DB_PASSWORD"))
 	defer dataProvider.Close()
 	dataProvider.CreateAircrafts(context.Background(), nSimulatedAircrafts)

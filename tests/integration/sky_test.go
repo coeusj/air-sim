@@ -67,7 +67,7 @@ func bufDialer(context.Context, string) (net.Conn, error) {
 	return listener.Dial()
 }
 
-func TestAircraftsNavigationData(t *testing.T) {
+func TestAircraftsNavigationDataStream(t *testing.T) {
 	conn, err := grpc.NewClient("passthrough:///bufnet",
 		grpc.WithContextDialer(bufDialer),
 		grpc.WithTransportCredentials(insecure.NewCredentials()))
